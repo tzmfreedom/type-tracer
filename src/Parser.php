@@ -9,14 +9,19 @@ class Parser
     )
     {}
 
+    /**
+     * @return Trace[]|false
+     */
     public function parse(string $file): array|false
     {
         $handle = fopen($file, 'r');
         if ($handle === false) {
             return false;
         }
+        // ignore header
         fgets($handle);
         fgets($handle);
+        // parse tsv body
         $traces = [];
         while (($data = fgetcsv($handle, null, "\t")) !== false) {
             if (
