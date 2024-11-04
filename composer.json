@@ -1,0 +1,27 @@
+{
+    "name": "tzmfreedom/type-tracer",
+    "version": "0.0.1",
+    "authors": [
+        {
+            "name": "tzmfreedom",
+            "email": "makoto_tajitsu@hotmail.co.jp"
+        }
+    ],
+    "require": {
+        "rector/rector": "^1.2",
+        "webmozart/assert": "^1.11"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.4"
+    },
+  "autoload": {
+    "psr-4": {
+      "Tzmfreedom\\TypeTracer\\": "src/"
+    }
+  },
+    "autoload-dev": {
+        "psr-4": {
+            "Tzmfreedom\\TypeTracer\\Tests\\": "tests/"
+        }
+    }
+}
