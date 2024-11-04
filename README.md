@@ -4,9 +4,23 @@ Type Tracer is Rector Custom Rule to add type declaration.
 
 ## Install
 
-TBD
+```bash
+$ composer require --dev tzmfreedom/type-tracer
+```
 
 ## Usage
+
+1. Generate func trace files.
+
+If you use Laravel, [FuncTraceMiddleware](src/Laravel/FuncTraceMiddleware.php) is available for func trace.
+
+2. Aggregate func trace files.
+
+```bash
+$ vendor/bin/trace-aggregate 'App\' type-aggregate.json '/tmp/trace.*'
+```
+
+3. Run Rector
 
 ```php
 <?php
@@ -17,10 +31,7 @@ use Rector\Config\RectorConfig;
 return RectorConfig::configure()
     ->withConfiguredRule(TypeDeclarationRector::class, [
         'mixedTypeCount' => 4,
-        'targetPrefix' => 'App\\',
-        'files' => [
-            '*.xt'
-        ],
+        'file' => 'type-aggregate.json',
     ]);
 ```
 

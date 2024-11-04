@@ -8,6 +8,7 @@
     }
   ],
   "license": "MIT",
+  "bin": ["bin/trace-aggregate"],
   "require": {
     "rector/rector": "^1.2",
     "webmozart/assert": "^1.11"

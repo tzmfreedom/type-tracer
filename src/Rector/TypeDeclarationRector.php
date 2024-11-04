@@ -10,8 +10,8 @@ use PhpParser\Node\Identifier;
 use PHPStan\Analyser\Scope;
 use Rector\Contract\Rector\ConfigurableRectorInterface;
 use Rector\Rector\AbstractScopeAwareRector;
+use Symplify\RuleDocGenerator\ValueObject\CodeSample\ConfiguredCodeSample;
 use Symplify\RuleDocGenerator\ValueObject\RuleDefinition;
-use Tzmfreedom\TypeTracer\Parser;
 use Tzmfreedom\TypeTracer\Trace;
 use Webmozart\Assert\Assert;
 
@@ -20,7 +20,6 @@ final class TypeDeclarationRector extends AbstractScopeAwareRector implements Co
     /** @var Trace[] $traces */
     private array $traces;
     private int $mixedTypeCount;
-    private string $targetPrefix = '';
 
     public function getNodeTypes(): array
     {
@@ -48,11 +47,11 @@ final class TypeDeclarationRector extends AbstractScopeAwareRector implements Co
         }
         $aggregateTypes = array_fill(0, count($node->params), []);
         foreach ($this->traces[$key] as $matchTrace) {
-            foreach ($matchTrace->argTypes as $index => $argType) {
+            foreach ($matchTrace['argTypes'] as $index => $argType) {
                 if ($argType === '') {
                     continue;
                 }
-                if (!array_search($argType, $aggregateTypes[$index], true)) {
+                if (!in_array($argType, $aggregateTypes[$index], true)) {
                     $aggregateTypes[$index][] = $argType;
                 }
             }
@@ -73,71 +72,40 @@ final class TypeDeclarationRector extends AbstractScopeAwareRector implements Co
 
     public function getRuleDefinition(): RuleDefinition
     {
-        return new RuleDefinition('...', []);
+        return new RuleDefinition('Add param types from xdebug func trace', [new ConfiguredCodeSample(<<<'CODE_SAMPLE'
+class SomeClass
+{
+    public function process($name)
+    {
+    }
+}
+CODE_SAMPLE
+            , <<<'CODE_SAMPLE'
+class SomeClass
+{
+    public function process(string $name)
+    {
+    }
+}
+CODE_SAMPLE
+            , [
+                'files' => ['*.xt'],
+            ])]);
     }
 
     /**
-     * @param array{targetPrefix: string, files: list<string>, mixedTypeCount?: int} $configuration
+     * @param array{targetPrefix: string, file: string, mixedTypeCount?: int} $configuration
      */
     public function configure(array $configuration): void
     {
-        Assert::keyExists($configuration, 'files');
-        Assert::allString($configuration['files']);
-        if (array_key_exists('targetPrefix', $configuration)) {
-            Assert::string($configuration['targetPrefix']);
-            $this->targetPrefix = $configuration['targetPrefix'];
-        }
-        $parser = new Parser($this->targetPrefix);
-        $traces = [];
-        foreach ($configuration['files'] as $pattern) {
-            $files = $this->rglob($pattern);
-            if ($files === false) {
-                continue;
-            }
-            foreach ($files as $file) {
-                $traces = [...$traces, ...$parser->parse($file)];
-            }
-        }
-        $this->traces = $this->groupByTraceKey($traces);
-
+        Assert::keyExists($configuration, 'file');
+        Assert::string($configuration['file']);
+        $this->traces = json_decode(file_get_contents($configuration['file']), true);
         if (array_key_exists('mixedTypeCount', $configuration)) {
             Assert::integer($configuration['mixedTypeCount']);
             $this->mixedTypeCount = $configuration['mixedTypeCount'];
         } else {
             $this->mixedTypeCount = PHP_INT_MAX;
         }
-    }
-
-    /**
-     * @param string $pattern
-     * @return list<string>
-     */
-    private function rglob(string $pattern): array
-    {
-        $files = glob($pattern);
-        foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as $dir) {
-            $files = [
-                ...$files,
-                ...$this->rglob($dir . "/" . basename($pattern)),
-            ];
-        }
-        return $files;
-    }
-
-    /**
-     * @param Trace[] $traces
-     * @return array<string, Trace[]>
-     */
-    private function groupByTraceKey(array $traces): array
-    {
-        $res = [];
-        foreach ($traces as $trace) {
-            if (array_key_exists($trace->functionName, $res)) {
-                $res[$trace->functionName][] = $trace;
-            } else {
-                $res[$trace->functionName] = [$trace];
-            }
-        }
-        return $res;
     }
 }

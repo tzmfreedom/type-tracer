@@ -2,10 +2,10 @@
 
 namespace Tzmfreedom\TypeTracer;
 
-class Parser
+readonly class Parser
 {
     public function __construct(
-        public string $targetPrefix = '',
+        private string $targetPrefix = '',
     )
     {}
 
@@ -14,7 +14,11 @@ class Parser
      */
     public function parse(string $file): array|false
     {
-        $handle = fopen($file, 'r');
+        if (str_ends_with($file, '.gz')) {
+            $handle = gzopen($file, 'r');
+        } else {
+            $handle = fopen($file, 'r');
+        }
         if ($handle === false) {
             return false;
         }
@@ -42,5 +46,48 @@ class Parser
         }
         fclose($handle);
         return $traces;
+    }
+
+    public function writeTypeTraceFile($filename, $pattern): void
+    {
+        $files = $this->rglob($pattern);
+        $traces = [];
+        foreach ($files as $file) {
+            $traces = [...$traces, ...$this->parse($file)];
+        }
+        file_put_contents($filename, json_encode($this->groupByTraceKey($traces)));
+    }
+
+    /**
+     * @param string $pattern
+     * @return list<string>
+     */
+    private function rglob(string $pattern): array
+    {
+        $files = glob($pattern);
+        foreach (glob(dirname($pattern).'/*', GLOB_ONLYDIR|GLOB_NOSORT) as $dir) {
+            $files = [
+                ...$files,
+                ...$this->rglob($dir . "/" . basename($pattern)),
+            ];
+        }
+        return $files;
+    }
+
+    /**
+     * @param Trace[] $traces
+     * @return array<string, Trace[]>
+     */
+    private function groupByTraceKey(array $traces): array
+    {
+        $res = [];
+        foreach ($traces as $trace) {
+            if (array_key_exists($trace->functionName, $res)) {
+                $res[$trace->functionName][] = $trace;
+            } else {
+                $res[$trace->functionName] = [$trace];
+            }
+        }
+        return $res;
     }
 }
