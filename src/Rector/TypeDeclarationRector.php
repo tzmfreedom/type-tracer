@@ -61,12 +61,16 @@ final class TypeDeclarationRector extends AbstractScopeAwareRector implements Co
             if ($param->type !== null) {
                 continue;
             }
-            if (count($aggregateTypes[$index]) > 0) {
-                $param->type = match(true) {
-                    count($aggregateTypes[$index]) >= $this->mixedTypeCount => new Identifier('mixed'),
-                    default => new Identifier(implode('|', $aggregateTypes[$index])),
-                };
+            if (count($aggregateTypes[$index]) === 0) {
+                continue;
             }
+            if (count($aggregateTypes[$index]) === 1 && in_array($aggregateTypes[$index][0], ['null', ''], true)) {
+                continue;
+            }
+            $param->type = match(true) {
+                count($aggregateTypes[$index]) >= $this->mixedTypeCount => new Identifier('mixed'),
+                default => new Identifier(implode('|', $aggregateTypes[$index])),
+            };
         }
     }
 

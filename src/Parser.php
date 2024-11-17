@@ -42,7 +42,7 @@ readonly class Parser
             for ($i = 11; $i < count($data); $i++) {
                 $args[] = $data[$i];
             }
-            $traces[] = (new Trace(functionName: $data[5], args: $args))->toArray();
+            $traces[] = new Trace(functionName: $data[5], args: $args);
         }
         fclose($handle);
         return $traces;
@@ -83,9 +83,9 @@ readonly class Parser
         $res = [];
         foreach ($traces as $trace) {
             if (array_key_exists($trace->functionName, $res)) {
-                $res[$trace->functionName][] = $trace;
+                $res[$trace->functionName][] = $trace->toArray();
             } else {
-                $res[$trace->functionName] = [$trace];
+                $res[$trace->functionName] = [$trace->toArray()];
             }
         }
         return $res;

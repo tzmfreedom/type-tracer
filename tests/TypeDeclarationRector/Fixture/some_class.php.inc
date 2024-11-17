@@ -18,7 +18,7 @@ namespace Tzmfreedom\TypeTracer\Tests\TypeDeclarationRector\Fixture;
 
 class Foo
 {
-    public function bar(\stdClass|string|int|float|bool|\App\Models\Hoge|null $i, string $j, $k)
+    public function bar(string|int|float|bool|\App\Models\Hoge|null $i, string $j, $k)
     {
 
     }

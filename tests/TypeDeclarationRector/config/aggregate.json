@@ -1,0 +1,44 @@
+{
+  "Tzmfreedom\\TypeTracer\\Tests\\TypeDeclarationRector\\Fixture\\Foo->bar": [
+    {
+      "argTypes": [
+        "string"
+      ]
+    },
+    {
+      "argTypes": [
+        "int"
+      ]
+    },
+    {
+      "argTypes": [
+        "float"
+      ]
+    },
+    {
+      "argTypes": [
+        "bool"
+      ]
+    },
+    {
+      "argTypes": [
+        "bool"
+      ]
+    },
+    {
+      "argTypes": [
+        "\\App\\Models\\Hoge"
+      ]
+    },
+    {
+      "argTypes": [
+        ""
+      ]
+    },
+    {
+      "argTypes": [
+        "null"
+      ]
+    }
+  ]
+}

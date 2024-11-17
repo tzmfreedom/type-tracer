@@ -9,9 +9,7 @@ return static function (RectorConfig $rectorConfig): void {
         \Tzmfreedom\TypeTracer\Rector\TypeDeclarationRector::class,
         [
             'targetPrefix' => 'Tzmfreedom\\',
-            'files' => [
-                '*.xt'
-            ],
+            'file' => __DIR__ . '/aggregate.json',
         ],
     );
 };

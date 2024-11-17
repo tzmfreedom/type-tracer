@@ -3,5 +3,5 @@
 
 include $_composer_autoload_path ?? __DIR__ . '/../vendor/autoload.php';
 
-$parser = new \Tzmfreedom\TypeTracer\Parser($argv[1]);
-$parser->writeTypeTraceFile($argv[2], $argv[3]);
+$parser = new \Tzmfreedom\TypeTracer\Parser(targetPrefix: $argv[1]);
+$parser->writeTypeTraceFile(filename: $argv[2], pattern: $argv[3]);
