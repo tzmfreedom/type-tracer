@@ -42,7 +42,7 @@ readonly class Parser
             for ($i = 11; $i < count($data); $i++) {
                 $args[] = $data[$i];
             }
-            $traces[] = new Trace(functionName: $data[5], args: $args);
+            $traces[] = (new Trace(functionName: $data[5], args: $args))->toArray();
         }
         fclose($handle);
         return $traces;

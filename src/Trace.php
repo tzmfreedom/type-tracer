@@ -37,9 +37,12 @@ readonly class Trace
         }, $this->args);
     }
 
-    public function toTsv()
+    public function toArray(): array
     {
-        $argString = implode(',', $this->argTypes);
-        return "$this->functionName\t$argString";
+        return [
+            'className' => $this->className,
+            'methodName' => $this->methodName,
+            'argTypes' => $this->argTypes,
+        ];
     }
 }
